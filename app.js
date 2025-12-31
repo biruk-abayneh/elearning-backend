@@ -21,7 +21,7 @@ app.get('/chapters', getChapters);
 app.get('/questions', getQuestions); 
 
 // Attempts & Progress (Student - Protected)
-app.post('/attempts', protect, submitAttempt); 
+app.post('/attempts', submitAttempt);
 app.get('/progress', protect, getProgress); 
 
 // The Server Port
