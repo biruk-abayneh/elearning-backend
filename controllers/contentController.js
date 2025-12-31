@@ -1,4 +1,5 @@
 // controllers/contentController.js
+const supabase = require('../config/supabaseClient');
 
 // 1. Fetch all available subjects
 exports.getSubjects = async (req, res) => {
