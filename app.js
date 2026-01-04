@@ -6,6 +6,7 @@ require('dotenv').config();
 const { submitAttempt, getProgress } = require('./controllers/attemptController');
 const { getSubjects, getChapters, getQuestions } = require('./controllers/contentController');
 const { protect, restrictToAdmin } = require('./middleware/authMiddleware');
+const { createQuestion } = require('./controllers/contentController');
 
 const app = express();
 
@@ -24,6 +25,8 @@ app.get('/questions', getQuestions);
 app.post('/attempts', submitAttempt); 
 app.get('/progress', protect, getProgress); 
 
+
+app.post('/questions', createQuestion);
 // The Server Port
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

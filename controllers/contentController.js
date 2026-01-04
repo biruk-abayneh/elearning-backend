@@ -49,3 +49,13 @@ exports.getQuestions = async (req, res) => {
     res.status(500).json({ error: "Could not fetch questions" });
   }
 };
+
+exports.createQuestion = async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('questions').insert([req.body]);
+    if (error) throw error;
+    res.status(201).json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
