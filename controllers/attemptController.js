@@ -40,3 +40,19 @@ exports.submitAttempt = async (req, res) => {
     res.status(500).json({ message: "Server error saving attempt" });
   }
 };
+
+exports.getProgress = async (req, res) => {
+  try {
+    // For now, we fetch all progress. 
+    // Later, we will filter this by user_id
+    const { data, error } = await supabase
+      .from('progress')
+      .select('*, questions(question_text)');
+
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (error) {
+    console.error("Error fetching progress:", error);
+    res.status(500).json({ message: "Could not fetch progress data" });
+  }
+};
