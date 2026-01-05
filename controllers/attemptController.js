@@ -1,5 +1,5 @@
 const supabase = require('../config/supabaseClient');
-const GUEST_ID = "b9fc8cf1-f7d9-4b89-9272-f51dd095a693"
+const GUEST_ID = "b9fc8cf1-f7d9-4b89-9272-f51dd095a693"; // Temporary guest user ID
 
 exports.submitAttempt = async (req, res) => {
   try {
