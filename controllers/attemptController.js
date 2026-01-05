@@ -1,4 +1,5 @@
 const supabase = require('../config/supabaseClient');
+const GUEST_ID = "b9fc8cf1-f7d9-4b89-9272-f51dd095a693"
 
 exports.submitAttempt = async (req, res) => {
   try {
@@ -19,13 +20,12 @@ exports.submitAttempt = async (req, res) => {
     // Note: Since we haven't finished the User Login, we'll use a placeholder 'user_id' for now
     const { error: pError } = await supabase
       .from('progress')
-      .insert([
-        { 
+      .insert([{ 
+          user_id: GUEST_ID, 
           question_id: questionId, 
-          is_correct: isCorrect,
-          chapter_id: chapterId
-        }
-      ]);
+          chapter_id: chapterId,
+          is_correct: isCorrect 
+      }]);
 
     if (pError) throw pError;
 
