@@ -37,7 +37,7 @@ exports.submitAttempt = async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error saving attempt" });
+    res.status(500).json({ message: "Server error saving attempt", details: error.message });
   }
 };
 
