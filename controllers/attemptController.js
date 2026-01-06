@@ -20,11 +20,11 @@ exports.submitAttempt = async (req, res) => {
     // Note: Since we haven't finished the User Login, we'll use a placeholder 'user_id' for now
     const { error: pError } = await supabase
       .from('progress')
-      .insert([{ 
-          user_id: GUEST_ID, 
-          question_id: questionId, 
-          chapter_id: chapterId,
-          is_correct: isCorrect 
+      .insert([{
+        user_id: GUEST_ID,
+        question_id: questionId,
+        chapter_id: chapterId,
+        is_correct: isCorrect
       }]);
 
     if (pError) throw pError;
@@ -41,18 +41,19 @@ exports.submitAttempt = async (req, res) => {
   }
 };
 
+// elearning-backend/controllers/attemptController.js
+
 exports.getProgress = async (req, res) => {
   try {
-    // For now, we fetch all progress. 
-    // Later, we will filter this by user_id
+    const { userId } = req.query; // Get ID from the URL
     const { data, error } = await supabase
       .from('progress')
-      .select('*, questions(question_text)');
+      .select('*')
+      .eq('user_id', userId);
 
     if (error) throw error;
     res.status(200).json(data);
   } catch (error) {
-    console.error("Error fetching progress:", error);
-    res.status(500).json({ message: "Could not fetch progress data" });
+    res.status(500).json({ error: error.message });
   }
 };
