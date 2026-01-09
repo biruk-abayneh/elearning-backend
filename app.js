@@ -17,13 +17,13 @@ app.use(express.json()); // Allows the server to read JSON data [cite: 155]
 // --- API ROUTES ---
 
 // Content (Student)
-app.get('/subjects', getSubjects); 
-app.get('/chapters', getChapters); 
-app.get('/questions', getQuestions); 
+app.get('/subjects', getSubjects);
+app.get('/chapters', getChapters);
+app.get('/questions', getQuestions);
 
 // Attempts & Progress (Student - Protected)
-app.post('/attempts', submitAttempt); 
-app.get('/progress', protect, getProgress); 
+app.post('/attempts', submitAttempt);
+app.get('/progress', getProgress);
 
 
 app.post('/questions', createQuestion);
