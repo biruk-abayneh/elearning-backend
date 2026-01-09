@@ -22,8 +22,8 @@ app.get('/chapters', getChapters);
 app.get('/questions', getQuestions);
 
 // Attempts & Progress (Student - Protected)
-app.post('/attempts', submitAttempt);
-app.get('/progress', getProgress);
+app.post('/attempts', protect, submitAttempt);
+app.get('/progress', protect, getProgress);
 
 
 app.post('/questions', createQuestion);
