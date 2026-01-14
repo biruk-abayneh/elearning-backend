@@ -1,9 +1,8 @@
 const supabase = require('../config/supabaseClient');
-const GUEST_ID = "b9fc8cf1-f7d9-4b89-9272-f51dd095a693"; // Temporary guest user ID
 
 exports.submitAttempt = async (req, res) => {
   try {
-    const { questionId, selectedOption, chapterId } = req.body;
+    const { questionId, selectedOption, chapterId, userId } = req.body;
 
     // 1. Fetch the correct answer from the database to compare
     const { data: question, error: qError } = await supabase
