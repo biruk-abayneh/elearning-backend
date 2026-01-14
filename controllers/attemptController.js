@@ -23,7 +23,7 @@ exports.submitAttempt = async (req, res) => {
         user_id: userId, // Securely assigned
         chapter_id: chapterId,
         question_id: questionId,
-        last_score: currentScore
+        is_Correct: isCorrect
       });
 
     if (pError) throw pError;
