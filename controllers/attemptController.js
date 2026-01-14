@@ -23,6 +23,7 @@ exports.submitAttempt = async (req, res) => {
       .upsert({
         user_id: userId, // Securely assigned
         chapter_id: chapterId,
+        question_id: questionId,
         last_score: currentScore
       });
 
