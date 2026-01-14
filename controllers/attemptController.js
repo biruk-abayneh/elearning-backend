@@ -20,12 +20,11 @@ exports.submitAttempt = async (req, res) => {
     // Note: Since we haven't finished the User Login, we'll use a placeholder 'user_id' for now
     const { error: pError } = await supabase
       .from('progress')
-      .insert([{
-        user_id: GUEST_ID,
-        question_id: questionId,
+      .upsert({
+        user_id: userId, // Securely assigned
         chapter_id: chapterId,
-        is_correct: isCorrect
-      }]);
+        last_score: currentScore
+      });
 
     if (pError) throw pError;
 
@@ -45,10 +44,13 @@ exports.submitAttempt = async (req, res) => {
 
 exports.getProgress = async (req, res) => {
   try {
-    const { userId } = req.query; // Get ID from the URL
+    const { userId } = req.user.id; // Get ID from the URL
     const { data, error } = await supabase
       .from('progress')
-      .select('*')
+      .select(`
+        *,
+        chapters ( chapter_name )
+      `)
       .eq('user_id', userId);
 
     if (error) throw error;
