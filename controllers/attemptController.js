@@ -2,7 +2,9 @@ const supabase = require('../config/supabaseClient');
 
 exports.submitAttempt = async (req, res) => {
   try {
-    const { questionId, selectedOption, chapterId, userId } = req.body;
+    const { questionId, selectedOption, chapterId } = req.body;
+
+    const userId = req.user.id; // Securely get user ID from authenticated request
 
     // 1. Fetch the correct answer from the database to compare
     const { data: question, error: qError } = await supabase
