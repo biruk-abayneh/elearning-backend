@@ -1,6 +1,8 @@
 // controllers/adminController.js
 
-exports.upsertQuestion = async (req, res) => {
+const supabase = require('../config/supabaseClient');
+
+const upsertQuestion = async (req, res) => {
   const { questionId, chapterId, questionText, options, correctAnswer, explanation } = req.body;
 
   try {
@@ -34,7 +36,7 @@ exports.upsertQuestion = async (req, res) => {
   }
 };
 
-export const createSubject = async (subjectData) => {
+const createSubject = async (subjectData) => {
   const headers = await getAuthHeaders();
   const response = await fetch(`${API_URL}/subjects`, {
     method: 'POST',
@@ -54,7 +56,7 @@ export const createSubject = async (subjectData) => {
   }
 };
 
-exports.createChapter = async (req, res) => {
+const createChapter = async (req, res) => {
   const { subject_id, chapter_name } = req.body;
   const { data, error } = await supabase
     .from('chapters')
@@ -63,4 +65,10 @@ exports.createChapter = async (req, res) => {
 
   if (error) return res.status(500).json({ error: error.message });
   res.status(201).json(data[0]);
+};
+
+module.exports = {
+  createChapter,
+  upsertQuestion,
+  createSubject
 };
