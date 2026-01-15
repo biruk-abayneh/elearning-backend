@@ -42,5 +42,5 @@ const adminOnly = async (req, res, next) => {
   }
 };
 
-module.exports = { protect, adminOnly };
+module.exports = { adminOnly };
 
