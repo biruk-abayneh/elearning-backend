@@ -7,7 +7,6 @@ const adminController = require('./controllers/adminController');
 // Import the controllers we discussed
 const { submitAttempt, getProgress } = require('./controllers/attemptController');
 const { getSubjects, getChapters, getQuestions } = require('./controllers/contentController');
-const { protect, restrictToAdmin } = require('./middleware/authMiddleware');
 const { createQuestion } = require('./controllers/contentController');
 
 const app = express();
