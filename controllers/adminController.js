@@ -73,3 +73,36 @@ exports.createChapter = async (req, res) => {
   res.status(201).json(data[0]);
 };
 
+exports.bulkUploadQuestions = async (req, res) => {
+  try {
+    const { chapter_id, questions } = req.body;
+
+    // Mapping the data to match your Supabase column names
+    const formattedQuestions = Object.values(questions).map(q => {
+      // Map the string "option A", "option B" etc., to the actual text content
+      const answerKey = q["correct answer"];
+      const correctAnswerText = q[answerKey];
+
+      return {
+        chapter_id: chapter_id,
+        question_text: q.question,
+        // Converting options into the array format your DB expects
+        options: [q["option A"], q["option B"], q["option C"], q["option D"]],
+        correct_answer: correctAnswerText, // Updated to your DB column name
+        explanation: q.explanation || ""
+      };
+    });
+
+    const { data, error } = await supabase
+      .from('questions')
+      .insert(formattedQuestions)
+      .select();
+
+    if (error) throw error;
+
+    res.status(201).json({ message: `Successfully uploaded ${data.length} questions` });
+  } catch (error) {
+    console.error("Bulk Upload Error:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
