@@ -28,6 +28,7 @@ app.get('/progress', protect, getProgress);
 
 
 app.post('/questions', createQuestion);
+app.post('/api/questions/bulk-upload', protect, adminOnly, adminController.bulkUploadQuestions);
 app.post('/subjects', protect, adminOnly, adminController.createSubject);
 app.post('/chapters', protect, adminOnly, adminController.createChapter);
 // The Server Port
