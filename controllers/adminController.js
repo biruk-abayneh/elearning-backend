@@ -36,28 +36,34 @@ exports.upsertQuestion = async (req, res) => {
   }
 };
 
-exports.createSubject = async (subjectData) => {
-  const headers = await getAuthHeaders();
-  const response = await fetch(`${API_URL}/subjects`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(subjectData),
-  });
+// backend/controllers/adminController.js
 
-  const contentType = response.headers.get("content-type");
+exports.createSubject = async (req, res) => {
+  try {
+    // 1. Remove the 'const headers = ...' line entirely
+    const { name } = req.body;
 
-  if (contentType && contentType.indexOf("application/json") !== -1) {
-    return await response.json();
-  } else {
-    // This will capture the HTML error page as text and log it
-    const textError = await response.text();
-    console.log("SERVER RETURNED NON-JSON:", textError);
-    return { error: "Server returned HTML instead of JSON. Check route path." };
+    if (!name) {
+      return res.status(400).json({ error: "Subject name is required" });
+    }
+
+    const { data, error } = await supabase
+      .from('subjects')
+      .insert([{ name }])
+      .select();
+
+    if (error) throw error;
+
+    // 2. Send the response back
+    res.status(201).json(data[0]);
+  } catch (error) {
+    console.error("Admin Controller Error:", error.message);
+    res.status(500).json({ error: error.message });
   }
 };
 
 exports.createChapter = async (req, res) => {
-  const { subject_id, chapter_name } = req.body;
+  const { subject_id, name } = req.body;
   const { data, error } = await supabase
     .from('chapters')
     .insert([{ subject_id, name }])
