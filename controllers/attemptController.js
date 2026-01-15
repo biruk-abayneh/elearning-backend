@@ -46,10 +46,18 @@ exports.submitAttempt = async (req, res) => {
 
 exports.getProgress = async (req, res) => {
   try {
-    const { userId } = req.user.id; // Get ID from the URL
+    const userId = req.user.id; // Get ID from the URL
+
+    if (!userId) {
+      return res.status(401).json({ error: "User ID not found in token" });
+    }
+
     const { data, error } = await supabase
       .from('progress')
-      .select(`*`)
+      .select(`
+        *,
+        chapters ( name )
+      `)
       .eq('user_id', userId);
 
     if (error) throw error;
