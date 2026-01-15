@@ -49,10 +49,7 @@ exports.getProgress = async (req, res) => {
     const { userId } = req.user.id; // Get ID from the URL
     const { data, error } = await supabase
       .from('progress')
-      .select(`
-        *,
-        chapters ( name )
-      `)
+      .select(`*`)
       .eq('user_id', userId);
 
     if (error) throw error;
