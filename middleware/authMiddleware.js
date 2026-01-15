@@ -31,3 +31,16 @@ exports.restrictToAdmin = (req, res, next) => {
   next();
 };
 
+const adminOnly = async (req, res, next) => {
+  // Option A: Hardcoded Admin Email (Quickest)
+  const adminEmails = ['admin@test.com'];
+
+  if (adminEmails.includes(req.user.email)) {
+    next();
+  } else {
+    res.status(403).json({ error: "Access denied. Admins only." });
+  }
+};
+
+module.exports = { protect, adminOnly };
+

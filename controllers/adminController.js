@@ -33,3 +33,34 @@ exports.upsertQuestion = async (req, res) => {
     res.status(500).json({ error: "Failed to save question" });
   }
 };
+
+export const createSubject = async (subjectData) => {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_URL}/subjects`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(subjectData),
+  });
+
+  const contentType = response.headers.get("content-type");
+
+  if (contentType && contentType.indexOf("application/json") !== -1) {
+    return await response.json();
+  } else {
+    // This will capture the HTML error page as text and log it
+    const textError = await response.text();
+    console.log("SERVER RETURNED NON-JSON:", textError);
+    return { error: "Server returned HTML instead of JSON. Check route path." };
+  }
+};
+
+exports.createChapter = async (req, res) => {
+  const { subject_id, chapter_name } = req.body;
+  const { data, error } = await supabase
+    .from('chapters')
+    .insert([{ subject_id, name }])
+    .select();
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.status(201).json(data[0]);
+};

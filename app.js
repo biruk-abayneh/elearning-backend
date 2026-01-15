@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+const { protect, adminOnly } = require('./middleware/authMiddleware');
+const adminController = require('./controllers/adminController');
 
 // Import the controllers we discussed
 const { submitAttempt, getProgress } = require('./controllers/attemptController');
@@ -27,6 +29,8 @@ app.get('/progress', protect, getProgress);
 
 
 app.post('/questions', createQuestion);
+app.post('/subjects', protect, adminOnly, adminController.createSubject);
+app.post('/chapters', protect, adminOnly, adminController.createChapter);
 // The Server Port
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
