@@ -51,7 +51,7 @@ exports.getProgress = async (req, res) => {
       .from('progress')
       .select(`
         *,
-        chapters ( chapter_name )
+        chapters ( name )
       `)
       .eq('user_id', userId);
 
