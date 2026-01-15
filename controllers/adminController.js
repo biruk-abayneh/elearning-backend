@@ -2,7 +2,7 @@
 
 const supabase = require('../config/supabaseClient');
 
-const upsertQuestion = async (req, res) => {
+exports.upsertQuestion = async (req, res) => {
   const { questionId, chapterId, questionText, options, correctAnswer, explanation } = req.body;
 
   try {
@@ -36,7 +36,7 @@ const upsertQuestion = async (req, res) => {
   }
 };
 
-const createSubject = async (subjectData) => {
+exports.createSubject = async (subjectData) => {
   const headers = await getAuthHeaders();
   const response = await fetch(`${API_URL}/subjects`, {
     method: 'POST',
@@ -56,7 +56,7 @@ const createSubject = async (subjectData) => {
   }
 };
 
-const createChapter = async (req, res) => {
+exports.createChapter = async (req, res) => {
   const { subject_id, chapter_name } = req.body;
   const { data, error } = await supabase
     .from('chapters')
@@ -67,8 +67,3 @@ const createChapter = async (req, res) => {
   res.status(201).json(data[0]);
 };
 
-module.exports = {
-  createChapter,
-  upsertQuestion,
-  createSubject
-};

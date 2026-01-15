@@ -31,7 +31,7 @@ exports.restrictToAdmin = (req, res, next) => {
   next();
 };
 
-const adminOnly = async (req, res, next) => {
+exports.adminOnly = async (req, res, next) => {
   // Option A: Hardcoded Admin Email (Quickest)
   const adminEmails = ['admin@test.com'];
 
@@ -42,5 +42,4 @@ const adminOnly = async (req, res, next) => {
   }
 };
 
-module.exports = { adminOnly };
 

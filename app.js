@@ -4,7 +4,7 @@ require('dotenv').config();
 const { protect, adminOnly } = require('./middleware/authMiddleware');
 const adminController = require('./controllers/adminController');
 
-// Import the controllers we discussed
+// Import the controllers
 const { submitAttempt, getProgress } = require('./controllers/attemptController');
 const { getSubjects, getChapters, getQuestions } = require('./controllers/contentController');
 const { createQuestion } = require('./controllers/contentController');
