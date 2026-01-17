@@ -28,7 +28,7 @@ exports.getChapters = async (req, res) => {
     if (error) throw error;
     res.status(200).json(data);
   } catch (err) {
-    res.status(500).json({ error: "Could not fetch chapters" }); 
+    res.status(500).json({ error: "Could not fetch chapters" });
   }
 };
 
@@ -50,6 +50,30 @@ exports.getQuestions = async (req, res) => {
   }
 };
 
+exports.getExplanations = async (req, res) => {
+  const { chapterId } = req.params;
+
+  try {
+    // Query the database for explanations
+    const { data, error } = await supabase
+      .from('questions')
+      .select('id, explanation')
+      .eq('chapter_id', chapterId);
+
+    if (error) throw error;
+
+    // Convert the array to a key-value object: { "q_id": "explanation text" }
+    const explanationMap = data.reduce((acc, item) => {
+      acc[item.id] = item.explanation;
+      return acc;
+    }, {});
+
+    res.status(200).json(explanationMap);
+  } catch (error) {
+    console.error("Explanations Fetch Error:", error);
+    res.status(500).json({ error: "Failed to fetch explanations" });
+  }
+};
 exports.createQuestion = async (req, res) => {
   try {
     const { data, error } = await supabase.from('questions').insert([req.body]);

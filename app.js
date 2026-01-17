@@ -6,7 +6,7 @@ const adminController = require('./controllers/adminController');
 
 // Import the controllers
 const { submitAttempt, getProgress } = require('./controllers/attemptController');
-const { getSubjects, getChapters, getQuestions } = require('./controllers/contentController');
+const { getSubjects, getChapters, getQuestions, getExplanations } = require('./controllers/contentController');
 const { createQuestion } = require('./controllers/contentController');
 
 const app = express();
@@ -21,6 +21,7 @@ app.use(express.json()); // Allows the server to read JSON data [cite: 155]
 app.get('/subjects', getSubjects);
 app.get('/chapters', getChapters);
 app.get('/questions', getQuestions);
+app.get('/chapters/:chapterId/explanations', protect, getExplanations); // Protected route
 
 // Attempts & Progress (Student - Protected)
 app.post('/attempts', protect, submitAttempt);
