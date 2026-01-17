@@ -9,7 +9,6 @@ exports.protect = async (req, res, next) => {
   if (!token) {
     return res.status(401).json({ error: "No token provided" });
   }
-
   try {
     // This asks Supabase: "Is this token valid and which user does it belong to?"
     const { data: { user }, error } = await supabase.auth.getUser(token);
@@ -23,22 +22,27 @@ exports.protect = async (req, res, next) => {
   }
 };
 
-// Restrict access specifically to Admins (Requirement 5.1)
-exports.restrictToAdmin = (req, res, next) => {
-  if (req.user.role !== 'admin') {
-    return res.status(403).json({ error: "You do not have permission to perform this action" });
-  }
-  next();
-};
-
+// Restrict routes to admin users only
 exports.adminOnly = async (req, res, next) => {
-  // Option A: Hardcoded Admin Email (Quickest)
-  const adminEmails = ['admin@test.com'];
+  try {
+    // Query the profiles table we created to check the role
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', req.user.id) // req.user.id comes from the protect middleware
+      .single();
 
-  if (adminEmails.includes(req.user.email)) {
-    next();
-  } else {
-    res.status(403).json({ error: "Access denied. Admins only." });
+    if (error || !profile) {
+      return res.status(403).json({ error: "Access denied. Profile not found." });
+    }
+
+    if (profile.role === 'admin') {
+      next(); // User is admin, proceed
+    } else {
+      res.status(403).json({ error: "Access denied. Admins only." });
+    }
+  } catch (err) {
+    res.status(500).json({ error: "Server error checking admin status" });
   }
 };
 
