@@ -33,6 +33,7 @@ exports.adminOnly = async (req, res, next) => {
       .single();
 
     if (error || !profile) {
+      console.log("Searching for ID:", req.user.id);
       return res.status(403).json({ error: "Access denied. Profile not found." });
     }
 
