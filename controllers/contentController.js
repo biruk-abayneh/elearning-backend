@@ -83,3 +83,52 @@ exports.createQuestion = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Save the final result when quiz ends
+exports.saveAttempt = async (req, res) => {
+  const { chapterId, score, totalQuestions } = req.body;
+  const percentage = (score / totalQuestions) * 100;
+
+  try {
+    const { data, error } = await supabase
+      .from('quiz_attempts')
+      .insert([{
+        user_id: req.user.id,
+        chapter_id: chapterId,
+        score,
+        total_questions: totalQuestions,
+        percentage
+      }]);
+
+    if (error) throw error;
+    res.status(201).json({ message: "Attempt saved" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get Dashboard Data + Rank
+exports.getUserDashboard = async (req, res) => {
+  try {
+    // 1. Get user's recent attempts
+    const { data: attempts } = await supabase
+      .from('quiz_attempts')
+      .select(`
+        score, total_questions, percentage, created_at,
+        chapters (name, subject_id, subjects (name))
+      `)
+      .eq('user_id', req.user.id)
+      .order('created_at', { ascending: false });
+
+    // 2. Calculate Rank (Leaderboard Logic)
+    // We compare total points (sum of scores) across all users
+    const { data: leaderboard } = await supabase
+      .rpc('get_user_rankings'); // We will create this SQL function next
+
+    const myRank = leaderboard.find(u => u.user_id === req.user.id);
+
+    res.json({ attempts, rank: myRank });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
