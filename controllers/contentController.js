@@ -39,7 +39,7 @@ exports.getQuestions = async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('questions')
-      .select('id, question_text, options, chapter_id') // We DON'T send the answer yet! [cite: 103, 151]
+      .select('id, question_text, options, chapter_id, likes_count') // We DON'T send the answer yet! [cite: 103, 151]
       .eq('chapter_id', chapterId)
       .eq('is_active', true); // Requirement: Only show the "live" version [cite: 89, 91]
 
