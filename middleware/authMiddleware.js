@@ -4,20 +4,30 @@ const supabase = require('../config/supabaseClient');
 
 // Protect routes for all logged-in users
 exports.protect = async (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ error: "No token provided" });
-  }
   try {
-    // This asks Supabase: "Is this token valid and which user does it belong to?"
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.split(' ')[1];
 
-    if (error || !user) throw new Error("Invalid token");
+    if (!token) {
+      console.log("Middleware: No token found in headers");
+      return res.status(401).json({ error: "No token provided" });
+    }
 
-    req.user = user; // Add the user object to the request
-    next();
+    // Validate token with Supabase
+    const { data, error } = await supabase.auth.getUser(token);
+
+    if (error || !data.user) {
+      console.error("Middleware: Supabase Auth Error:", error?.message);
+      return res.status(401).json({ error: "Invalid token" });
+    }
+
+    // SUCCESS: Attach the user to the request
+    req.user = data.user;
+
+    console.log("Middleware: User authenticated successfully:", req.user.id);
+    next(); // Move to the controller
   } catch (error) {
+    console.error("Middleware: Catch Error:", error.message);
     res.status(401).json({ error: "Not authorized" });
   }
 };

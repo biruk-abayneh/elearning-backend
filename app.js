@@ -20,7 +20,7 @@ app.use(express.json()); // Allows the server to read JSON data [cite: 155]
 // Content (Student)
 app.get('/subjects', getSubjects);
 app.get('/chapters', getChapters);
-app.get('/questions', getQuestions);
+app.get('/questions', protect, getQuestions);
 app.get('/dashboard', protect, getUserDashboard);
 app.get('/chapters/:chapterId/explanations', protect, getExplanations); // Protected route
 
