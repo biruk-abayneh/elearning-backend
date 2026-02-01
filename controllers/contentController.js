@@ -35,17 +35,42 @@ exports.getChapters = async (req, res) => {
 // 3. Fetch ONLY active questions for a chapter
 exports.getQuestions = async (req, res) => {
   const { chapterId } = req.query;
+  // Get the userId from the auth middleware (e.g., req.user.id)
+  const userId = req.user?.id;
 
   try {
     const { data, error } = await supabase
       .from('questions')
-      .select('id, question_text, options, chapter_id, likes_count') // We DON'T send the answer yet! [cite: 103, 151]
+      .select(`
+        id, 
+        question_text, 
+        options, 
+        chapter_id, 
+        likes_count,
+        user_likes(user_id)
+      `)
       .eq('chapter_id', chapterId)
-      .eq('is_active', true); // Requirement: Only show the "live" version [cite: 89, 91]
+      .eq('is_active', true)
+      // This filter ensures we only join the row if it matches the current user
+      .eq('user_likes.user_id', userId);
 
     if (error) throw error;
-    res.status(200).json(data);
+
+    // Transform data: convert the join array into a simple boolean 'hasLiked'
+    const formattedData = data.map(q => {
+      const hasLiked = q.user_likes && q.user_likes.length > 0;
+      // Remove the raw join data before sending to frontend
+      const { user_likes, ...rest } = q;
+      return {
+        ...rest,
+        hasLiked,
+        likes_count: q.likes_count || 0
+      };
+    });
+
+    res.status(200).json(formattedData);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Could not fetch questions" });
   }
 };
