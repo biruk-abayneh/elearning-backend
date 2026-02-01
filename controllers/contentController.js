@@ -35,8 +35,7 @@ exports.getChapters = async (req, res) => {
 // 3. Fetch ONLY active questions for a chapter
 exports.getQuestions = async (req, res) => {
   const { chapterId } = req.query;
-  const userId = req.user?.id; // Now safely available thanks to your middleware
-
+  const userId = req.user?.id || req.user?.sub; // Supabase JWTs often use 'sub' for the UUID
   try {
     const { data, error } = await supabase
       .from('questions')
@@ -52,7 +51,10 @@ exports.getQuestions = async (req, res) => {
       .eq('is_active', true)
       .eq('user_likes.user_id', userId); // Join filter
 
-    if (error) throw error;
+    if (error) {
+      console.error("Supabase Query Error:", error);
+      throw error;
+    }
 
     const formattedData = data.map(q => ({
       id: q.id,
@@ -65,6 +67,7 @@ exports.getQuestions = async (req, res) => {
 
     res.status(200).json(formattedData);
   } catch (err) {
+    console.error("Full Controller Error:", err);
     res.status(500).json({ error: "Could not fetch questions" });
   }
 };
