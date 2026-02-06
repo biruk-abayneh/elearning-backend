@@ -35,7 +35,6 @@ exports.getChapters = async (req, res) => {
 // 3. Fetch ONLY active questions for a chapter
 exports.getQuestions = async (req, res) => {
   const { chapterId } = req.query;
-  console.log("User object from middleware:", req.user);
   const userId = req.user?.id || req.user?.sub; // Supabase JWTs often use 'sub' for the UUID
 
   if (!userId || userId === 'undefined') {
@@ -79,7 +78,7 @@ exports.getQuestions = async (req, res) => {
 };
 
 exports.getExplanations = async (req, res) => {
-  const { chapterId } = req.query;
+  const { chapterId } = req.params;
 
   try {
     // Query the database for explanations
