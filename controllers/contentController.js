@@ -79,20 +79,23 @@ exports.getQuestions = async (req, res) => {
 };
 
 exports.getExplanations = async (req, res) => {
-  const { chapterId } = req.params;
+  const { chapterId } = req.query;
 
   try {
     // Query the database for explanations
     const { data, error } = await supabase
       .from('questions')
-      .select('id, explanation')
+      .select('id, explanation, correct_answer')
       .eq('chapter_id', chapterId);
 
     if (error) throw error;
 
     // Convert the array to a key-value object: { "q_id": "explanation text" }
     const explanationMap = data.reduce((acc, item) => {
-      acc[item.id] = item.explanation;
+      acc[item.id] = {
+        explanation: item.explanation,
+        correct_answer: item.correct_answer
+      };
       return acc;
     }, {});
 

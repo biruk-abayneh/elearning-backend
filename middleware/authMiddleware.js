@@ -24,7 +24,6 @@ exports.protect = async (req, res, next) => {
     // SUCCESS: Attach the user to the request
     req.user = data.user;
 
-    console.log("Middleware: User authenticated successfully:", req.user.id);
     next(); // Move to the controller
   } catch (error) {
     console.error("Middleware: Catch Error:", error.message);
