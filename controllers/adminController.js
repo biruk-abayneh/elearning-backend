@@ -106,3 +106,35 @@ exports.bulkUploadQuestions = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.bulkUploadFlashcards = async (req, res) => {
+  const { chapterId, flashcardsJson } = req.body;
+
+  try {
+    // Transform the "card 1": {front, back} format into an array for Supabase
+    const cardsArray = Object.keys(flashcardsJson).map(key => ({
+      chapter_id: chapterId,
+      front_text: flashcardsJson[key].front,
+      back_text: flashcardsJson[key].back
+    }));
+
+    const { data, error } = await supabase
+      .from('flashcards')
+      .insert(cardsArray);
+
+    if (error) throw error;
+    res.json({ message: `Successfully uploaded ${cardsArray.length} flashcards.` });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+exports.createSingleFlashcard = async (req, res) => {
+  const { chapterId, front, back } = req.body;
+  const { data, error } = await supabase
+    .from('flashcards')
+    .insert([{ chapter_id: chapterId, front_text: front, back_text: back }]);
+
+  if (error) return res.status(400).json({ error: error.message });
+  res.json({ message: 'Flashcard created successfully!' });
+};

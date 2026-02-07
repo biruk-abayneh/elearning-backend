@@ -162,3 +162,60 @@ exports.getUserDashboard = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// GET subjects that actually have flashcards
+exports.getFlashcardSubjects = async (req, res) => {
+  const { data, error } = await supabase
+    .from('subjects')
+    .select('*, chapters!inner(flashcards!inner(id))'); // Only get subjects with flashcards
+  if (error) return res.status(400).json({ error: error.message });
+  res.json(data);
+};
+
+// GET chapters with progress stats
+exports.getFlashcardChapters = async (req, res) => {
+  const { subjectId } = req.params;
+  const userId = req.user.id; // from auth middleware
+
+  // Call the SQL function we created
+  const { data, error } = await supabase
+    .rpc('get_flashcard_chapter_stats', { u_id: userId });
+
+  if (error) return res.status(400).json({ error: error.message });
+
+  // Filter for the specific subject if needed (or adjust RPC to accept subject_id)
+  // For now, assuming we filter in JS or adjust RPC. 
+  // Simplified for this context:
+  const { data: chapters } = await supabase
+    .from('chapters')
+    .select('id, title, flashcards(count)')
+    .eq('subject_id', subjectId);
+
+  res.json(chapters);
+};
+
+// GET the actual cards for the game
+exports.getFlashcardsForChapter = async (req, res) => {
+  const { chapterId } = req.params;
+  const { data, error } = await supabase
+    .from('flashcards')
+    .select('*')
+    .eq('chapter_id', chapterId);
+  if (error) return res.status(400).json({ error: error.message });
+  res.json(data);
+};
+
+// POST track when a user flips a card
+exports.trackFlashcardInteraction = async (req, res) => {
+  const { flashcardId, type } = req.body; // type = 'flip' or 'like'
+  const userId = req.user.id;
+
+  const updateData = type === 'flip' ? { is_flipped: true } : { liked: true };
+
+  const { error } = await supabase
+    .from('user_flashcard_progress')
+    .upsert({ user_id: userId, flashcard_id: flashcardId, ...updateData }, { onConflict: 'user_id, flashcard_id' });
+
+  if (error) return res.status(400).json({ error: error.message });
+  res.json({ success: true });
+};
