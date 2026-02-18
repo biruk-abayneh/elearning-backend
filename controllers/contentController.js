@@ -35,7 +35,7 @@ exports.getChapters = async (req, res) => {
 // 3. Fetch ONLY active questions for a chapter
 exports.getQuestions = async (req, res) => {
   const { chapterId } = req.query;
-  const userId = req.user?.id || req.user?.sub; // Supabase JWTs often use 'sub' for the UUID
+  const userId = req.user?.id || req.user?.sub;
 
   if (!userId || userId === 'undefined') {
     return res.status(401).json({ error: "User ID not found in token" });
@@ -47,14 +47,15 @@ exports.getQuestions = async (req, res) => {
       .select(`
         id, 
         question_text, 
+        question_image,
         options, 
         chapter_id, 
         likes_count,
-        user_likes(user_id)
+        user_likes!left(user_id) 
       `)
       .eq('chapter_id', chapterId)
       .eq('is_active', true)
-      .eq('user_likes.user_id', userId); // Join filter
+      .eq('user_likes.user_id', userId);
 
     if (error) {
       console.error("Supabase Query Error:", error);
@@ -64,10 +65,11 @@ exports.getQuestions = async (req, res) => {
     const formattedData = data.map(q => ({
       id: q.id,
       question_text: q.question_text,
+      question_image: q.question_image,
       options: q.options,
       chapter_id: q.chapter_id,
       likes_count: q.likes_count || 0,
-      hasLiked: q.user_likes && q.user_likes.length > 0 // Boolean for the heart icon
+      hasLiked: q.user_likes && q.user_likes.length > 0 
     }));
 
     res.status(200).json(formattedData);
@@ -81,18 +83,19 @@ exports.getExplanations = async (req, res) => {
   const { chapterId } = req.params;
 
   try {
-    // Query the database for explanations
+    // Query the database for explanations AND images
     const { data, error } = await supabase
       .from('questions')
-      .select('id, explanation, correct_answer')
+      .select('id, explanation, explanation_image, correct_answer') 
       .eq('chapter_id', chapterId);
 
     if (error) throw error;
 
-    // Convert the array to a key-value object: { "q_id": "explanation text" }
+    // Convert array to key-value object
     const explanationMap = data.reduce((acc, item) => {
       acc[item.id] = {
         explanation: item.explanation,
+        explanation_image: item.explanation_image,
         correct_answer: item.correct_answer
       };
       return acc;
