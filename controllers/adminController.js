@@ -86,10 +86,11 @@ exports.bulkUploadQuestions = async (req, res) => {
       return {
         chapter_id: chapter_id,
         question_text: q.question,
-        // Converting options into the array format your DB expects
         options: [q["option A"], q["option B"], q["option C"], q["option D"]],
         correct_answer: correctAnswerText, // Updated to your DB column name
-        explanation: q.explanation || ""
+        explanation: q.explanation || "",
+        question_image: q.question_image || null, // Optional image URL
+        explanation_image: q.explanation_image || null // Optional explanation image URL
       };
     });
 
