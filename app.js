@@ -14,7 +14,7 @@ const app = express();
 
 // Middleware
 app.use(cors()); // Allows your mobile app to talk to this server 
-app.use(express.json()); // Allows the server to read JSON data [cite: 155]
+app.use(express.json({ limit: '50mb' })); // Allows the server to read JSON data 
 
 // --- API ROUTES ---
 
