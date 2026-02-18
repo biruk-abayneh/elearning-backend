@@ -3,7 +3,7 @@
 const supabase = require('../config/supabaseClient');
 
 exports.upsertQuestion = async (req, res) => {
-  const { questionId, chapterId, questionText, options, correctAnswer, explanation } = req.body;
+  const { questionId, chapterId, questionText, options, correctAnswer, explanation, questionImage, explanationImage } = req.body;
 
   try {
     // 1. If we are "editing" (questionId exists), we Soft Delete the old one
@@ -24,7 +24,9 @@ exports.upsertQuestion = async (req, res) => {
         options: options,        // Array of strings
         correct_answer: correctAnswer,
         explanation: explanation, // Static admin-authored text [cite: 102, 104]
-        is_active: true          // This one is now the "live" version
+        is_active: true,          // This one is now the "live" version
+        question_image: questionImage || null, // Optional image URL
+        explanation_image: explanationImage || null // Optional explanation image URL
       }]);
 
     if (error) throw error;
