@@ -9,7 +9,7 @@ exports.submitAttempt = async (req, res) => {
     // 1. Fetch the correct answer from the database to compare
     const { data: question, error: qError } = await supabase
       .from('questions')
-      .select('correct_answer, explanation')
+      .select('correct_answer, explanation, explanation_image')
       .eq('id', questionId)
       .single();
 
@@ -33,7 +33,8 @@ exports.submitAttempt = async (req, res) => {
     // 3. Send the result back to the mobile app
     res.status(200).json({
       correct: isCorrect,
-      explanation: question.explanation
+      explanation: question.explanation,
+      explanation_image: question.explanation_image // <--- NEW: Send image URL to frontend
     });
 
   } catch (error) {
