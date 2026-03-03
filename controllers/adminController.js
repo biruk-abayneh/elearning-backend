@@ -82,6 +82,7 @@ exports.bulkUploadQuestions = async (req, res) => {
     // Mapping the data to match your Supabase column names
     const formattedQuestions = Object.values(questions).map(q => {
       // Map the string "option A", "option B" etc., to the actual text content
+      const orderIndex = parseInt(key.replace('question_', ''));
       const answerKey = q["correct answer"];
       const correctAnswerText = q[answerKey];
 
@@ -92,7 +93,8 @@ exports.bulkUploadQuestions = async (req, res) => {
         correct_answer: correctAnswerText, // Updated to your DB column name
         explanation: q.explanation || "",
         question_image: q.question_image || null, // Optional image URL
-        explanation_image: q.explanation_image || null // Optional explanation image URL
+        explanation_image: q.explanation_image || null, // Optional explanation image URL
+        order_index: isNaN(orderIndex) ? 0 : orderIndex // Save the order here
       };
     });
 

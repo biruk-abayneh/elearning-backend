@@ -51,11 +51,13 @@ exports.getQuestions = async (req, res) => {
         options, 
         chapter_id, 
         likes_count,
+        order_index,
         user_likes!left(user_id) 
       `)
       .eq('chapter_id', chapterId)
       .eq('is_active', true)
-      .eq('user_likes.user_id', userId);
+      .eq('user_likes.user_id', userId)
+      .order('order_index', { ascending: true });
 
     if (error) {
       console.error("Supabase Query Error:", error);
@@ -69,7 +71,8 @@ exports.getQuestions = async (req, res) => {
       options: q.options,
       chapter_id: q.chapter_id,
       likes_count: q.likes_count || 0,
-      hasLiked: q.user_likes && q.user_likes.length > 0 
+      hasLiked: q.user_likes && q.user_likes.length > 0,
+      order_index: q.order_index || 0
     }));
 
     res.status(200).json(formattedData);
@@ -86,7 +89,7 @@ exports.getExplanations = async (req, res) => {
     // Query the database for explanations AND images
     const { data, error } = await supabase
       .from('questions')
-      .select('id, explanation, explanation_image, correct_answer') 
+      .select('id, explanation, explanation_image, correct_answer')
       .eq('chapter_id', chapterId);
 
     if (error) throw error;
