@@ -4,13 +4,39 @@ const supabase = require('../config/supabaseClient');
 // 1. Fetch all available subjects
 exports.getSubjects = async (req, res) => {
   try {
+    const { type } = req.query; // This will be 'is_flashcard' or 'is_question'
+
+    // Validation to prevent SQL injection or errors
+    const validTypes = ['is_flashcard', 'is_question'];
+    if (!validTypes.includes(type)) {
+      return res.status(400).json({ error: "Invalid content type specified" });
+    }
+
     const { data, error } = await supabase
       .from('subjects')
-      .select('*'); // Gets everything from the subjects table [cite: 149]
+      .select(`
+        *,
+        chapters!inner(id) 
+      `)
+      .eq(`chapters.${type}`, true);
 
     if (error) throw error;
-    res.status(200).json(data);
+
+    // The inner join might return duplicate subjects if multiple chapters match.
+    // However, Supabase's PostgREST logic typically handles the grouping. 
+    // To be safe and return clean subject objects, we can map them:
+    const formattedData = data.map(subject => {
+      const { chapters, ...subjectInfo } = subject;
+      return subjectInfo;
+    });
+
+    // Remove duplicates if any (PostgREST usually prevents them in this select style, 
+    // but this is a safe way to ensure a unique list of subjects)
+    const uniqueSubjects = Array.from(new Map(formattedData.map(s => [s.id, s])).values());
+
+    res.status(200).json(uniqueSubjects);
   } catch (err) {
+    console.error("Subject Fetch Error:", err.message);
     res.status(500).json({ error: "Could not fetch subjects" });
   }
 };
