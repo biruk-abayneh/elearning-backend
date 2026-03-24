@@ -53,7 +53,8 @@ exports.getChapters = async (req, res) => {
     const { data, error } = await supabase
       .from('chapters')
       .select('*')
-      .eq('subject_id', subjectId); // Filter: only give chapters for this subject [cite: 150]
+      .eq('subject_id', subjectId)
+      .eq('is_question', true); // Filter: only give chapters for this subject
 
     if (error) throw error;
     res.status(200).json(data);
