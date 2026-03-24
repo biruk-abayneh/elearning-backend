@@ -106,6 +106,13 @@ exports.bulkUploadQuestions = async (req, res) => {
 
     if (error) throw error;
 
+    const { upsertType, upsertError } = await supabase
+      .from('chapters')
+      .upsert({ is_question: true })
+      .eq('id', chapter_id);
+
+    if (upsertError) throw upsertError;
+
     res.status(201).json({ message: `Successfully uploaded ${data.length} questions` });
   } catch (error) {
     console.error("Bulk Upload Error:", error.message);

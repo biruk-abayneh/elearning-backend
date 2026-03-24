@@ -4,34 +4,38 @@ const supabase = require('../config/supabaseClient');
 // 1. Fetch all available subjects
 exports.getSubjects = async (req, res) => {
   try {
-    const { type } = req.query; // This will be 'is_flashcard' or 'is_question'
+    const { type } = req.query;
 
-    // Validation to prevent SQL injection or errors
-    const validTypes = ['is_flashcard', 'is_question'];
-    if (!validTypes.includes(type)) {
-      return res.status(400).json({ error: "Invalid content type specified" });
+    // 1. Start with a base query
+    let query = supabase.from('subjects');
+
+    if (type) {
+      // 2. If a type is provided, filter subjects that have active chapters
+      const validTypes = ['is_flashcard', 'is_question'];
+      if (!validTypes.includes(type)) {
+        return res.status(400).json({ error: "Invalid content type" });
+      }
+
+      // We use !inner to exclude subjects with 0 matching chapters
+      query = query.select('*, chapters!inner(id)').eq(`chapters.${type}`, true);
+    } else {
+      // 3. If no type, just get all subjects
+      query = query.select('*');
     }
 
-    const { data, error } = await supabase
-      .from('subjects')
-      .select(`
-        *,
-        chapters!inner(id) 
-      `)
-      .eq(`chapters.${type}`, true);
-
+    const { data, error } = await query;
     if (error) throw error;
 
-    // The inner join might return duplicate subjects if multiple chapters match.
-    // However, Supabase's PostgREST logic typically handles the grouping. 
-    // To be safe and return clean subject objects, we can map them:
+    // 4. Format the data so the frontend always gets a consistent array of subjects
     const formattedData = data.map(subject => {
-      const { chapters, ...subjectInfo } = subject;
-      return subjectInfo;
+      if (subject.chapters) {
+        const { chapters, ...subjectInfo } = subject;
+        return subjectInfo;
+      }
+      return subject;
     });
 
-    // Remove duplicates if any (PostgREST usually prevents them in this select style, 
-    // but this is a safe way to ensure a unique list of subjects)
+    // Ensure unique subjects (in case the inner join returns duplicates)
     const uniqueSubjects = Array.from(new Map(formattedData.map(s => [s.id, s])).values());
 
     res.status(200).json(uniqueSubjects);
