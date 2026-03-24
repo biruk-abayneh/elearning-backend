@@ -108,7 +108,7 @@ exports.bulkUploadQuestions = async (req, res) => {
 
     const { upsertType, upsertError } = await supabase
       .from('chapters')
-      .upsert({ is_question: true })
+      .update({ is_question: true })
       .eq('id', chapter_id);
 
     if (upsertError) throw upsertError;
@@ -136,6 +136,14 @@ exports.bulkUploadFlashcards = async (req, res) => {
       .insert(cardsArray);
 
     if (error) throw error;
+
+    const { upsertType, upsertError } = await supabase
+      .from('chapters')
+      .update({ is_flashcard: true })
+      .eq('id', chapter_id);
+
+    if (upsertError) throw upsertError;
+
     res.json({ message: `Successfully uploaded ${cardsArray.length} flashcards.` });
   } catch (error) {
     res.status(400).json({ error: error.message });
