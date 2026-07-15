@@ -9,6 +9,7 @@ const contentController = require('./controllers/contentController');
 const { submitAttempt, getProgress } = require('./controllers/attemptController');
 const { getSubjects, getChapters, getQuestions, getExplanations, saveAttempt, getUserDashboard } = require('./controllers/contentController');
 const { createQuestion } = require('./controllers/contentController');
+const { askTutor, getRecommendations } = require('./controllers/aiController');
 
 const app = express();
 
@@ -32,6 +33,10 @@ app.post('/flashcards/interact', protect, contentController.trackFlashcardIntera
 // Attempts & Progress (Student - Protected)
 app.post('/attempts', protect, submitAttempt);
 app.get('/progress', protect, getProgress);
+
+// AI features (Student - Protected)
+app.post('/ai/tutor', protect, askTutor);            // textbook-grounded tutor chat
+app.get('/ai/recommendations', protect, getRecommendations); // personalized study plan
 
 
 app.post('/questions', adminOnly, createQuestion);

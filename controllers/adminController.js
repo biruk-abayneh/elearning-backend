@@ -137,10 +137,10 @@ exports.bulkUploadFlashcards = async (req, res) => {
 
     if (error) throw error;
 
-    const { upsertType, upsertError } = await supabase
+    const { error: upsertError } = await supabase
       .from('chapters')
       .update({ is_flashcard: true })
-      .eq('id', chapter_id);
+      .eq('id', chapterId);
 
     if (upsertError) throw upsertError;
 
